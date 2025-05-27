@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{{ super() }}
+<script>
+var canvas;
+function saveDiv() {
+  html2canvas(document.getElementById("drop-zone")).then(function(canvas) {
+    var a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png').replace("image/png", "image/octet-stream");
+    a.download = 'content.png';
+    a.click();
+  });
+}
+ function deleteObject() {
+  var activeObject = canvas.getActiveObject();
+  if (activeObject) {
+    canvas.remove(activeObject);
+    canvas.renderAll();
+  } else {
+    alert("Выберите объект для удаления");
+  }
+}
+
+</script>
+<button onclick="saveDiv()">Сохранить как PNG</button>
+<button onclick="addText()">Добавить текст</button>
+<button onclick="deleteObject()">Удалить объект</button>
+<div class="container">
+
+<div class="side-panel">
+    {%for p in posts%}
+  <img src="{{url_for('admin.get_image', img_id = p.id)}}" alt="Image {{p.id}}" class="draggable" draggable="true">
+    {%endfor%}
+</div>
+
+    <canvas id="drop-zone">
+      <!-- Comic page where images will be added -->
+    </canvas>
+  </div>
+<br>
+
+
+<script type="text/javascript" src="static/js/html2canvas.js"></script>
+<script src="static/js/fabric.min.js"></script>
+<script>
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    canvas = new fabric.Canvas('drop-zone', {
+        width: 392,
+        height: 557
+    });
+
+    canvas.setBackgroundColor('white');
+
+    function createImageOnCanvas(imgUrl, event) {
+        fabric.Image.fromURL(imgUrl, function(img) {
+            img.set({
+                left: event.layerX,
+                top: event.layerY,
+                scaleX: 0.5,
+                scaleY: 0.5
+            });
+            canvas.add(img);
+        });
+    }
+
+    document.querySelectorAll('.draggable').forEach(function(img) {
+        img.addEventListener('dragstart', function(event) {
+            event.dataTransfer.setData('text/plain', img.src);
+        });
+    });
+
+    canvas.on('drop', function(options) {
+        options.e.preventDefault();
+        var imgUrl = options.e.dataTransfer.getData('text/plain');
+        createImageOnCanvas(imgUrl, options.e);
+    });
+
+    canvas.on('dragover', function(options) {
+        options.e.preventDefault();
+    });
+});
+
+
+    function addText(){
+    var text = new fabric.Textbox('Редактируемый текст', {
+            left: 0,
+            top: 0,
+            fontSize: 20,
+            fontFamily: 'Arial',
+            fill: 'black',
+            editable: true
+        });
+
+        canvas.add(text);}
+</script>
+{%endblock%}

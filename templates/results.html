@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{{ super() }}
+<p><a href="{{url_for('admin.index')}}">Админ-панель</a> </p>
+<hr>
+<h2>Результаты поиска</h2>
+<main class="list-posts">
+    {%if posts%}
+    {%for p in posts%}
+    <div>
+        <p class="title">{{p.title}}</p>
+        <p class="text">{{p.type}}</p>
+        <p class="annonce"><img src="{{url_for('admin.get_image', img_id = p.id)}}"></p>
+    </div>
+        {%endfor%}
+    {%else%}
+    <p>Результатов не найдено</p>
+    {%endif%}
+
+</main>
+{%endblock%}
